@@ -2,5 +2,5 @@ DIR="{automationWorkerLinuxBaseDirectory}/build-{newOsNode.fqn}"
 [[ -d ${DIR} ]] && rm -rf ${DIR} && echo "Removed ${DIR}" || \
     echo "No directory to remove."
 
-ISO={automationWorkerLinuxBaseDirectory}/*{newOsNode.fqn}.iso
+ISO="{automationWorkerLinuxBaseDirectory}/*{newOsNode.fqn}.iso"
 [[ -f ${ISO} ]] && rm -fv ${ISO} || echo "No ISO to remove."
