@@ -1,22 +1,49 @@
 if {isWin10Bios} || {isWinServerBios}
 then
 
-    # Extract the boot.img out of the WinPE ISO
+    cd "{automationWorkerLinuxBaseDirectory}/build-{newOsNode.fqn}"
     
-    cd {automationWorkerLinuxBaseDirectory}/build-{newOsNode.fqn}
-    
-    # Case insensitve globbing
+    # Case insensitive globbing for the ISO filename
     shopt -s nocaseglob
-    
-    # Set the filename of the ISO
-    F=$(ls *.iso)
-    
-    # Get the Boot image offset
-    OFFSET=`isoinfo -d -i $F | grep Bootoff | cut  -c21-`
-    
-    # Extract the boot.img.
-    dd if=$F of=boot.img bs=2048 count=8 skip=$OFFSET
-    
+    isoFile=$(ls *.iso | head -n 1)
+
+    if uname | \
+        grep -iq "darwin"
+    then
+        echo "is macOS"
+        export PATH="${HOME}/Parallels/homebrew/bin:$PATH"
+        echo "Using $(which xorriso)"
+
+        # Get the BIOS boot image LBA from the El Torito catalogue
+        lba=$(xorriso -indev "$isoFile" -report_el_torito plain 2>/dev/null \
+            | awk '/^El Torito boot img/ && /BIOS/ {print $NF; exit}')
+
+    else
+        echo "not macOS"
+        echo "Using $(which isoinfo)"
+
+        if command -v isoinfo >/dev/null 2>&1
+        then
+            echo "genisoimage already installed"
+        else
+            echo "Installing genisoimage..."
+            apt-get update
+            apt-get install -y genisoimage
+        fi
+
+        # Get the BIOS boot image LBA via isoinfo
+        lba=$(isoinfo -d -i "$isoFile" | grep Bootoff | cut -c21-)
+    fi
+
+    if [ -z "$lba" ]
+    then
+        echo "Could not determine boot image offset from $isoFile"
+        exit 1
+    fi
+
+    # Extract the boot image (8 sectors of 2048 bytes = 16 KB)
+    dd if="$isoFile" of=boot.img bs=2048 count=8 skip="$lba"
+
 else
     echo "Skipping for UEFI ISO creation."
 fi
