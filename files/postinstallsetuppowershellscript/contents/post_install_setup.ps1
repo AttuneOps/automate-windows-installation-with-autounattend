@@ -47,12 +47,12 @@ New-Item -Path WSMan:\LocalHost\Listener -Transport HTTPS -Address * `
     -DnsName '${newOsNode.hostname}' `
     -NotAfter (get-date).AddYears(6)).Thumbprint -Force
 
-Restart-Service -Force WinRM
+Enable-WSManCredSSP -Role Server -Force
+
+Stop-Service -Force WinRM
 
 New-NetFirewallRule -DisplayName 'WinRM HTTPS' -Name 'WinRM_HTTPS' `
     -Profile Any -LocalPort 5986 -Protocol TCP
-
-Enable-WSManCredSSP -Role Server -Force
     
 # Enable File Sharing
 Get-NetFirewallRule -DisplayGroup 'File and Printer Sharing' | `
