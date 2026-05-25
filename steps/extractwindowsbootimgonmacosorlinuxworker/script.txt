@@ -25,10 +25,27 @@ then
         if command -v isoinfo >/dev/null 2>&1
         then
             echo "genisoimage already installed"
+        
         else
             echo "Installing genisoimage..."
-            apt-get update
-            apt-get install -y genisoimage
+
+            if command -v dnf >/dev/null 2>&1
+            then
+                dnf install -y genisoimage
+                
+            elif command -v yum >/dev/null 2>&1
+            then
+                yum install -y genisoimage
+                
+            elif command -v apt-get >/dev/null 2>&1
+            then
+                apt-get update
+                apt-get install -y genisoimage
+            
+            else
+                echo "No supported package manager found (dnf, yum, apt-get)"
+                exit 1
+            fi
         fi
 
         # Get the BIOS boot image LBA via isoinfo
