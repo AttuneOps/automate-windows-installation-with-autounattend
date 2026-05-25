@@ -47,6 +47,8 @@ New-Item -Path WSMan:\LocalHost\Listener -Transport HTTPS -Address * `
     -DnsName '${newOsNode.hostname}' `
     -NotAfter (get-date).AddYears(6)).Thumbprint -Force
 
+Enable-WSManCredSSP -Role Server -Force
+
 Stop-Service -Force WinRM
 
 New-NetFirewallRule -DisplayName 'WinRM HTTPS' -Name 'WinRM_HTTPS' `

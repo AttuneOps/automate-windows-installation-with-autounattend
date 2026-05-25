@@ -128,10 +128,8 @@
 							<Label>System Reserved</Label>
 							<Order>1</Order>
 							<PartitionID>1</PartitionID>
-							<TypeID>0x27</TypeID>
 						</ModifyPartition>
 						<ModifyPartition wcm:action="add">
-							<Active>true</Active>
 							<Format>NTFS</Format>
 							<Label>OS</Label>
 							<Letter>C</Letter>
